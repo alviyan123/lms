@@ -47,6 +47,8 @@ Route::group(['middleware' => 'auth:admin'], function() {
     Route::post('/tugas/upload', [TugasController::class, 'upload'])->name('tugasUpload');
     Route::post('/tugas/nilai', [TugasController::class, 'nilai'])->name('tugasNilai');
     Route::get('/tugas/download', [TugasController::class, 'download'])->name('tugasDownload');
+    Route::post('/tugas/nilaiPost', [TugasController::class, 'tugasPost'])->name('tugasInput');
+    Route::get('/tugas/jawabEdit', [TugasController::class, 'jawabEdit'])->name('jawabEdit');
 
     //MICRO LEARNING
     Route::get('/microLearning', [MicroLearningController::class, 'index'])->name('microLearning');	

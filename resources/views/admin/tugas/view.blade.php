@@ -37,6 +37,7 @@
               <div class="card-body p-3">
                 <form id="formEdit"></form>
                 <form id="formNilai"></form>
+                <form id="formPostTest"></form>
               </div>
             </div>
         </div>
@@ -44,6 +45,25 @@
         @include('/admin/partial/footer')
     </div>
   </main>
+  
+  <div id="modalJawaban" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Jawaban</h5>
+        </div>
+        <div class="modal-body">
+          <h5>Setelah Akfititas pembelajaran tadi, apa yang ANDA FIKIRKAN dan bagaimana PERASAAN ANDA ?</h5>
+          <p id='jwb1'></p>
+          <h5>Dari Aktivitas pembelajaran tadi, PELAJARAN APA YANG ANDA DAPATKAN ?</h5>
+          <p id='jwb2'></p>
+          <h5>Dari pengetahuan yang anda dapatkan, APA YANG AKAN ANDA LAKUKAN?</h5>
+          <p id='jwb3'></p>
+        </div>
+
+      </div>
+    </div>
+  </div>
     @include('/admin/partial/mainly')
   <!--   Core JS Files   -->
   @include('/admin/partial/script')
@@ -70,11 +90,37 @@
           usePopover: true,
           width:"300px",
           onItemClick(value) {
-            // if(value.itemData.text=='Upload Tugas'){
-    				// 	Upload(value.itemData.id,"UPLOAD TUGAS");
-            // }
+            if(value.itemData.text=='Upload Tugas'){
+    					Upload(value.itemData.id,"UPLOAD TUGAS");
+            }
             if (value.itemData.text=='Input Nilai') {
               InputNilai(value.itemData.id,value.itemData.name,value.itemData.name_siswa,"Input Nilai");
+            }
+            if(value.itemData.text=='Isi Post Test'){
+    					InputPostTest(value.itemData.id,"Input Post Test");
+            }
+            if(value.itemData.text=='Lihat Jawaban'){
+              
+              $.ajax({
+                url: "{{route('jawabEdit')}}",
+                dataType: "json",
+                type: 'GET',
+                data:{id:value.itemData.id},
+                success: function(result) {
+                  $("#jwb1").empty();
+                  $("#jwb2").empty();
+                  $("#jwb3").empty();
+
+
+                  $("#jwb1").text(result.jawaban_1);
+                  $("#jwb2").text(result.jawaban_2);
+                  $("#jwb3").text(result.jawaban_3);
+
+                  $('#modalJawaban').modal('show');
+                },
+                error: function(e) {
+                },
+              });
             }
           },
         }).dxActionSheet('instance');
@@ -155,20 +201,20 @@
                         caption:"Nama Matkul",
                         alignment: "left"
                     },
-                    {
-                        dataField: "teach_date_from",
-                        caption:"Jadwal",
-                        editorType: "dxDateBox",
-                        editorOptions: {
-                            type: "date",
-                            displayFormat:'dd-MM-yyyy',
-                            readOnly: false,
-                            width: '100%',
-                        },
-                        label: {
-                        text: "Jadwal Kuliah"
-                        },
-                    },
+                    // {
+                    //     dataField: "teach_date_from",
+                    //     caption:"Jadwal",
+                    //     editorType: "dxDateBox",
+                    //     editorOptions: {
+                    //         type: "date",
+                    //         displayFormat:'dd-MM-yyyy',
+                    //         readOnly: false,
+                    //         width: '100%',
+                    //     },
+                    //     label: {
+                    //     text: "Jadwal Kuliah"
+                    //     },
+                    // },
                     {
                         dataField: "deadline_date",
                         editorType: "dxDateBox",
@@ -242,49 +288,73 @@
                         }
                     },
               ],
-              onToolbarPreparing: function(e){
-                e.toolbarOptions.items.unshift(
-                {
-                  location: "before",
-                  widget: "dxButton",
-                  locateInMenu:"auto",
-                  options: {
-                    icon: "fa fa-plus",
-                    type: "success",
-                    text: "Upload Tugas",
-                    elementAttr: {"id": "btnUploadTugas"}, 
-                      onClick: function(e) {
-                        UploadPerWeek("Upload Tugas");
-                      }
-                  }
-                })
-              },
+              // onToolbarPreparing: function(e){
+              //   e.toolbarOptions.items.unshift(
+              //   {
+              //     location: "before",
+              //     widget: "dxButton",
+              //     locateInMenu:"auto",
+              //     options: {
+              //       icon: "fa fa-plus",
+              //       type: "success",
+              //       text: "Upload Tugas",
+              //       elementAttr: {"id": "btnUploadTugas"}, 
+              //         onClick: function(e) {
+              //           UploadPerWeek("Upload Tugas");
+              //         }
+              //     }
+              //   })
+              // },
               onCellClick: function(e) {
-                console.log(e.columnIndex);
                 @if(Auth::user()->role != 4)
-                  var valueIndex = 9
-                @else
                   var valueIndex = 8
+                @else
+                  var valueIndex = 7
                 @endif
                 if(e.columnIndex===valueIndex){
+                  console.log(e.data);
                   actionSheet.option('target', e.cellElement);
                   actionSheet.option('visible', true);
                   if ({!!Auth::user()->role!!} == 1 || {!!Auth::user()->role!!} == 2) {
-                    const actionSheetItems = [
-                      // { text: 'Upload Tugas',icon: 'upload',id:e.data.id},
-                      { text: 'Input Nilai',icon: 'check',id:e.data.id,name_siswa:e.data.name_siswa,name:e.data.name},
-                    ];
-                    actionSheet.option('items',actionSheetItems);
+                    if (e.data.is_refleksi == 1) {
+                      const actionSheetItems = [
+                        { text: 'Upload Tugas',icon: 'upload',id:e.data.id},
+                        { text: 'Input Nilai',icon: 'check',id:e.data.id,name_siswa:e.data.name_siswa,name:e.data.name},
+                      ];
+                      actionSheet.option('items',actionSheetItems);
+                    }else{
+                      const actionSheetItems = [
+                        { text: 'Isi Post Test',icon: 'upload',id:e.data.id},
+                        { text: 'Lihat Jawaban',icon: 'activefolder',id:e.data.id},
+                        { text: 'Input Nilai',icon: 'check',id:e.data.id,name_siswa:e.data.name_siswa,name:e.data.name},
+                      ];
+                      actionSheet.option('items',actionSheetItems);
+                    }
                   }else if({!!Auth::user()->role!!} == 3){
-                    const actionSheetItems = [
-                      { text: 'Input Nilai',icon: 'check',id:e.data.id,name_siswa:e.data.name_siswa,name:e.data.name},
-                    ];
-                    actionSheet.option('items',actionSheetItems);
+                    if (e.data.is_refleksi == 1) {
+                      const actionSheetItems = [
+                        { text: 'Input Nilai',icon: 'check',id:e.data.id,name_siswa:e.data.name_siswa,name:e.data.name},
+                      ];
+                      actionSheet.option('items',actionSheetItems);
+                    }else{
+                      const actionSheetItems = [
+                        { text: 'Lihat Jawaban',icon: 'activefolder',id:e.data.id},
+                        { text: 'Input Nilai',icon: 'check',id:e.data.id,name_siswa:e.data.name_siswa,name:e.data.name},
+                      ];
+                      actionSheet.option('items',actionSheetItems);
+                    }
                   }else{
-                    const actionSheetItems = [
-                      // { text: 'Upload Tugas',icon: 'upload',id:e.data.id},
-                    ];
-                    actionSheet.option('items',actionSheetItems);
+                    if (e.data.is_refleksi == 1) {
+                      const actionSheetItems = [
+                        { text: 'Upload Tugas',icon: 'upload',id:e.data.id},
+                      ];
+                      actionSheet.option('items',actionSheetItems);
+                    }else{
+                      const actionSheetItems = [
+                        { text: 'Isi Post Test',icon: 'upload',id:e.data.id},
+                      ];
+                      actionSheet.option('items',actionSheetItems);
+                    }
                   }
                }
           },
@@ -294,6 +364,7 @@
             const data = {"id":id};
             $("#headerEditForm").text(title);
             $("#formNilai").hide();
+            $("#formPostTest").hide();
             $("#formEdit").show();
             $("#formEdit").dxForm({
                 readOnly: false,
@@ -352,125 +423,125 @@
               }).dxForm("instance");
           };
           
-          var sts_weekend = [
-            {"ID":"1","Name":"Pertama" },
-            {"ID":"2","Name":"Kedua" },
-            {"ID":"3","Name":"Ketiga" },
-            {"ID":"4","Name":"Keempat" },
-            {"ID":"5","Name":"Kelima" },
-            {"ID":"6","Name":"Keenam" },
-            {"ID":"7","Name":"Ketujuh" },
-            {"ID":"8","Name":"Kedelapan" },
-            {"ID":"9","Name":"Kesembilan" },
-            {"ID":"10","Name":"Kesepuluh" },
-            {"ID":"11","Name":"Kesebelas" },
-            {"ID":"12","Name":"Kedua belas" },
-            {"ID":"13","Name":"ketiga belas" },
-            {"ID":"14","Name":"Keempat belas" },
-            {"ID":"15","Name":"Kelima belas" },
-            {"ID":"16","Name":"Keenam belas" },
-          ];
-          function UploadPerWeek(title){
-            $("#headerEditForm").text(title);
-            $("#formNilai").hide();
-            $("#formEdit").show();
-            var user_id = {{Auth::user()->id}};
-            $("#formEdit").dxForm({
-                readOnly: false,
-                formData:data,
-                showColonAfterLabel: false,
-                labelLocation: "top",
-                showValidationSummary: true,
-                items: [
-                  {
-                    dataField: "weekend_to",
-                    editorType: "dxSelectBox",
-                    editorOptions: {
-                        readOnly: false,
-                        width: '100%',
-                        searchEnabled: true,
-                        dataSource: sts_weekend,
-                        displayExpr: "Name",
-                        valueExpr: "ID",
-                    },
-                    label: {
-                      text: "Tugas Minggu Ke "
-                    },
-                  },
-                  @if(Auth::user()->role == 4)
-                  {
-                    colSpan:2,
-                    dataField: "user_id",
-                    editorType: "dxSelectBox",
-                    editorOptions: {
-                        value:user_id,
-                        readOnly: true,
-                        width: '100%',
-                        searchEnabled: true,
-                        dataSource: Pku.ParameterLookup("User", "User"),
-                        displayExpr: "Name",
-                        valueExpr: "ID",
-                    },
-                    label: {
-                        text: "User"
-                    },
-                  },
-                  @else
-                  {
-                    colSpan:2,
-                    dataField: "user_id",
-                    editorType: "dxSelectBox",
-                    editorOptions: {
-                        readOnly: false,
-                        width: '100%',
-                        searchEnabled: true,
-                        dataSource: Pku.ParameterLookup("User", "User"),
-                        displayExpr: "Name",
-                        valueExpr: "ID",
-                    },
-                    label: {
-                        text: "User"
-                    },
-                  },
-                  @endif
-                  {
-                      dataField: "patch_upload",
-                      editorType: "dxFileUploader",
-                      width: '100%',
-                      label: {
-                          text: "Upload Tugas",
-                          visible: true
-                      },
-                      editorOptions: {
-                        labelText: "",
-                        width: '100%',
-                        allowedFileExtensions: [".docx", ".doc",".pdf"],
-                        uploadMode: "useForm",
-                        selectButtonText: "Upload File .pdf / .doc /.docx",
-                        elementAttr: {
-                            class: "file-upload",
-                        },
-                      },
-                  },
-                  {
-                      editorType: "dxButton",
-                      label: {
-                        text: "SIMPAN",
-                        visible: false
-                      },
-                      editorOptions: {
-                        text: "SIMPAN",
-                        type: "success",
-                        icon: 'save',
-                        useSubmitBehavior: true,
-                        elementAttr: {
-                            style: "float:right;"
-                        }
-                      },
-                  },
-                ]
-              }).dxForm("instance");
-          };
+          // var sts_weekend = [
+          //   {"ID":"1","Name":"Pertama" },
+          //   {"ID":"2","Name":"Kedua" },
+          //   {"ID":"3","Name":"Ketiga" },
+          //   {"ID":"4","Name":"Keempat" },
+          //   {"ID":"5","Name":"Kelima" },
+          //   {"ID":"6","Name":"Keenam" },
+          //   {"ID":"7","Name":"Ketujuh" },
+          //   {"ID":"8","Name":"Kedelapan" },
+          //   {"ID":"9","Name":"Kesembilan" },
+          //   {"ID":"10","Name":"Kesepuluh" },
+          //   {"ID":"11","Name":"Kesebelas" },
+          //   {"ID":"12","Name":"Kedua belas" },
+          //   {"ID":"13","Name":"ketiga belas" },
+          //   {"ID":"14","Name":"Keempat belas" },
+          //   {"ID":"15","Name":"Kelima belas" },
+          //   {"ID":"16","Name":"Keenam belas" },
+          // ];
+          // function UploadPerWeek(title){
+          //   $("#headerEditForm").text(title);
+          //   $("#formNilai").hide();
+          //   $("#formEdit").show();
+          //   var user_id = {{Auth::user()->id}};
+          //   $("#formEdit").dxForm({
+          //       readOnly: false,
+          //       formData:data,
+          //       showColonAfterLabel: false,
+          //       labelLocation: "top",
+          //       showValidationSummary: true,
+          //       items: [
+          //         {
+          //           dataField: "weekend_to",
+          //           editorType: "dxSelectBox",
+          //           editorOptions: {
+          //               readOnly: false,
+          //               width: '100%',
+          //               searchEnabled: true,
+          //               dataSource: sts_weekend,
+          //               displayExpr: "Name",
+          //               valueExpr: "ID",
+          //           },
+          //           label: {
+          //             text: "Tugas Minggu Ke "
+          //           },
+          //         },
+          //         @if(Auth::user()->role == 4)
+          //         {
+          //           colSpan:2,
+          //           dataField: "user_id",
+          //           editorType: "dxSelectBox",
+          //           editorOptions: {
+          //               value:user_id,
+          //               readOnly: true,
+          //               width: '100%',
+          //               searchEnabled: true,
+          //               dataSource: Pku.ParameterLookup("User", "User"),
+          //               displayExpr: "Name",
+          //               valueExpr: "ID",
+          //           },
+          //           label: {
+          //               text: "User"
+          //           },
+          //         },
+          //         @else
+          //         {
+          //           colSpan:2,
+          //           dataField: "user_id",
+          //           editorType: "dxSelectBox",
+          //           editorOptions: {
+          //               readOnly: false,
+          //               width: '100%',
+          //               searchEnabled: true,
+          //               dataSource: Pku.ParameterLookup("User", "User"),
+          //               displayExpr: "Name",
+          //               valueExpr: "ID",
+          //           },
+          //           label: {
+          //               text: "User"
+          //           },
+          //         },
+          //         @endif
+          //         {
+          //             dataField: "patch_upload",
+          //             editorType: "dxFileUploader",
+          //             width: '100%',
+          //             label: {
+          //                 text: "Upload Tugas",
+          //                 visible: true
+          //             },
+          //             editorOptions: {
+          //               labelText: "",
+          //               width: '100%',
+          //               allowedFileExtensions: [".docx", ".doc",".pdf"],
+          //               uploadMode: "useForm",
+          //               selectButtonText: "Upload File .pdf / .doc /.docx",
+          //               elementAttr: {
+          //                   class: "file-upload",
+          //               },
+          //             },
+          //         },
+          //         {
+          //             editorType: "dxButton",
+          //             label: {
+          //               text: "SIMPAN",
+          //               visible: false
+          //             },
+          //             editorOptions: {
+          //               text: "SIMPAN",
+          //               type: "success",
+          //               icon: 'save',
+          //               useSubmitBehavior: true,
+          //               elementAttr: {
+          //                   style: "float:right;"
+          //               }
+          //             },
+          //         },
+          //       ]
+          //     }).dxForm("instance");
+          // };
 
           $("#formEdit").submit(function(e){
               e.preventDefault();
@@ -520,6 +591,7 @@
                 "name_siswa":name_siswa
               };
             $("#formEdit").hide();
+            $("#formPostTest").hide();
             $("#formNilai").show();
             $("#headerEditForm").text(title);
             $("#formNilai").dxForm({
@@ -606,6 +678,140 @@
                   'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 url: '{{ route("tugasNilai") }}',
+                enctype: 'multipart/form-data',
+                cache: false,
+                contentType: false,
+                processData: false,
+                data:formData,
+                success: function (res)
+                {
+                    loadPanel.hide();
+                    if (res.success == true) {
+                      Pku.WindowNotif( "OK" ,  res.message,  'success' );
+                      loadData();
+                      return false;
+                    }else{
+                      Pku.WindowNotif ( "Oops" ,  res.message,  'error' );
+                      return false; 
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    loadPanel.hide();
+                    Pku.WindowNotif ( "Oops" ,  jqXHR.responseText,  'error' );
+                    return false;
+                }
+              }).done(function (data) {
+                    loadPanel.hide();
+              });
+
+          });
+
+          function InputPostTest(id,title){
+
+            $.ajax({
+                url: "{{route('jawabEdit')}}",
+                dataType: "json",
+                type: 'GET',
+                data:{id:id},
+                success: function(result) {
+                  LoadForm(result);
+                },
+                error: function(e) {
+                },
+            });
+            function LoadForm(data) {
+              $("#formEdit").hide();
+            $("#formNilai").hide();
+            $("#formPostTest").show();
+            $("#headerEditForm").text(title);
+            $("#formPostTest").dxForm({
+                readOnly: false,
+                formData:data,
+                showColonAfterLabel: false,
+                labelLocation: "top",
+                showValidationSummary: true,
+                items: [
+                  {
+                    dataField: "id",
+                    editorType: "dxTextBox",
+                    editorOptions: {
+                      readOnly: true,
+                      width: '100%',
+                    },
+                    label: {
+                      text: "ID"
+                    },
+                  },
+                  {
+                    dataField: "jawaban_1",
+                    editorType: "dxTextArea",
+                    editorOptions: {
+                      height:150,
+                      readOnly: false,
+                      width: '100%',
+                    },
+                    label: {
+                      text: "Setelah Akfititas pembelajaran tadi, apa yang ANDA FIKIRKAN dan bagaimana PERASAAN ANDA ?"
+                    },
+                  },
+                  {
+                    dataField: "jawaban_2",
+                    editorType: "dxTextArea",
+                    editorOptions: {
+                      height:150,
+                      readOnly: false,
+                      width: '100%',
+                    },
+                    label: {
+                      text: "Dari Aktivitas pembelajaran tadi, PELAJARAN APA YANG ANDA DAPATKAN ?"
+                    },
+                  },
+                  {
+                    dataField: "jawaban_3",
+                    editorType: "dxTextArea",
+                    editorOptions: {
+                      height:150,
+                      readOnly: false,
+                      width: '100%', 
+                    },
+                    label: {
+                      text: "Dari pengetahuan yang anda dapatkan, APA YANG AKAN ANDA LAKUKAN?"
+                    },
+                  },
+                  {
+                      editorType: "dxButton",
+                      label: {
+                        text: "SIMPAN",
+                        visible: false
+                      },
+                      editorOptions: {
+                        text: "SIMPAN",
+                        type: "success",
+                        icon: 'save',
+                        useSubmitBehavior: true,
+                        elementAttr: {
+                            style: "float:right;"
+                        }
+                      },
+                  },
+                ]
+              }).dxForm("instance");
+            }
+          }
+
+          $("#formPostTest").submit(function(e){
+              e.preventDefault();
+
+              var form = $('#formPostTest')[0];
+              var formData = new FormData(form);
+              loadPanel.show();
+
+              $.ajax({
+                type: 'POST',
+                headers: {  
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                url: '{{ route("tugasInput") }}',
                 enctype: 'multipart/form-data',
                 cache: false,
                 contentType: false,

@@ -256,6 +256,11 @@
             {ID: 4,Name: 'Peserta'},
         ];
 
+        const tgs = [
+            {ID: 0,Name: 'Post Test'},
+            {ID: 1,Name: 'Upload File'},
+        ];
+
         function LoadForm(data) {
           $("#formEdit").dxForm({
             readOnly: false,
@@ -384,6 +389,22 @@
                 },
                 label: {
                   text: "Minggu Ke"
+                },
+              },
+              {
+                colSpan:2,
+                dataField: "is_refleksi",
+                editorType: "dxSelectBox",
+                editorOptions: {
+                  readOnly: false,
+                  width: '100%',
+                  searchEnabled: true,
+                  dataSource: tgs,
+                  displayExpr: "Name",
+                  valueExpr: "ID",
+                },
+                label: {
+                  text: "Tugas"
                 },
               },
               {

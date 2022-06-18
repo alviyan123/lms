@@ -33,7 +33,7 @@ class TugasController extends Controller
                                             WHEN a.uploaded = 3 THEN "SUDAH UPLOAD TUGAS"
                                             WHEN a.uploaded = 2 THEN "TELAT UPLOAD DAN SEDANG DIVALIDASI"
                                             WHEN a.uploaded = 1 THEN "SEDANG DIVALIDASI" 
-                                        END AS uploaded,a.patch_upload,a.is_value,a.value'))
+                                        END AS uploaded,a.patch_upload,a.is_value,a.value,c.is_refleksi'))
                         ->join('sys_ms_admins AS b', 'a.user_id', '=', 'b.id')
                         ->join('sys_ms_jadwal_kuliah AS c', 'a.jadwal_id', '=', 'c.id')
                         ->join('sys_ms_admins AS d', 'c.dosen_id', '=', 'd.id')
@@ -48,12 +48,13 @@ class TugasController extends Controller
                                             WHEN a.uploaded = 3 THEN "SUDAH UPLOAD TUGAS"
                                             WHEN a.uploaded = 2 THEN "TELAT UPLOAD DAN SEDANG DIVALIDASI"
                                             WHEN a.uploaded = 1 THEN "SEDANG DIVALIDASI" 
-                                        END AS uploaded,a.patch_upload,a.is_value,a.value'))
+                                        END AS uploaded,a.patch_upload,a.is_value,a.value,c.is_refleksi'))
                         ->join('sys_ms_admins AS b', 'a.user_id', '=', 'b.id')
                         ->join('sys_ms_jadwal_kuliah AS c', 'a.jadwal_id', '=', 'c.id')
                         ->join('sys_ms_admins AS d', 'c.dosen_id', '=', 'd.id')
+                        ->join('sys_ms_admins AS e', 'b.mentor_id', '=', 'e.id')
                         ->orderBy('a.created_at','DESC')
-                        ->where([['a.deleted',0],['c.dosen_id',Auth::user()->id]])
+                        ->where([['a.deleted',0],['e.id',Auth::user()->id]])
                         ->get();
         }else{
             $result = DB::table('sys_tr_tugas AS a')
@@ -63,7 +64,7 @@ class TugasController extends Controller
                                             WHEN a.uploaded = 3 THEN "SUDAH UPLOAD TUGAS"
                                             WHEN a.uploaded = 2 THEN "TELAT UPLOAD DAN SEDANG DIVALIDASI"
                                             WHEN a.uploaded = 1 THEN "SEDANG DIVALIDASI" 
-                                        END AS uploaded,a.patch_upload,a.is_value,a.value'))
+                                        END AS uploaded,a.patch_upload,a.is_value,a.value,c.is_refleksi'))
                         ->join('sys_ms_admins AS b', 'a.user_id', '=', 'b.id')
                         ->join('sys_ms_jadwal_kuliah AS c', 'a.jadwal_id', '=', 'c.id')
                         ->join('sys_ms_admins AS d', 'c.dosen_id', '=', 'd.id')
@@ -75,48 +76,39 @@ class TugasController extends Controller
     }
 
     public function upload(Request $request) {
-        if(isset($request->weekend_to)){
-            $user =  Admin::where([['deleted',0],['id',$request->user_id]])->first(); 
-            
-            $tugas =  DB::table('sys_tr_tugas')->where([['deleted',0],['user_id',$user->id]])->limit(1)->get(); 
-            $matkul =  JadwalKuliah::where([['deleted',0],['id',$tugas[0]->jadwal_id]])->first(); 
-            $newName = str_replace(' ', '_', $user->name);
-            $exFile = $request->patch_upload->getClientOriginalExtension();
-            $newDate = substr($matkul->teach_date_from,0,10);
-            $patch = 'tugas/'.$newName;
-            $fileName = $newName.'_'.$matkul->matkul_id.'_'.$newDate.'_'.$tugas[0]->id.'.'.$exFile;
-            
-            $stsStorage  = Storage::disk('local')->putFileAs(
-                $patch,
-                $request->patch_upload,
-                $fileName
-            );    
-            
-            if($matkul->deadline_date > Carbon::now()){
-                //TELAT
-                $uploaded = 2;
-            }else{
-                $uploaded = 1;
-            }
 
-            $data = [
-                'patch_upload'=>'/'.$patch.'/'.$fileName,
-                'tgl_upload' => Carbon::now(),
-                'uploaded' => $uploaded
-            ];
-            $jadwals =  JadwalKuliah::where([['deleted',0],['weekend_to',$request->weekend_to]])->get(); 
-            foreach($jadwals as $jadwal){
-                $savingTugas =  DB::table('sys_tr_tugas')->where([['deleted',0],['user_id',$request->user_id],['jadwal_id',$jadwal->id]])->update( $data );
-            }
-            if($savingTugas == true){
-                return response()->json(["success" => true,"message" => "Data Berhasil Diupload"]);
-            }else{
-                return response()->json(["success" => false,"message" => "Data Gagal Diupload"]);
-            };
+        $tugas =  DB::table('sys_tr_tugas')->where([['deleted',0],['id',$request->id]])->first(); 
+        $user =  Admin::where('id',$tugas->user_id)->first(); 
 
+        $matkul =  JadwalKuliah::where([['deleted',0],['id',$tugas->jadwal_id]])->first(); 
+        $newName = str_replace(' ', '_', $user->name);
+        $exFile = $request->patch_upload->getClientOriginalExtension();
+        $newDate = substr($matkul->teach_date_from,0,10);
+        $patch = 'tugas/'.$newName;
+        $fileName = $newName.'_'.$matkul->id.'_'.$newDate.'_'.$tugas->id.'.'.$exFile;
+        $stsStorage  = Storage::disk('local')->putFileAs(
+            $patch,
+            $request->patch_upload,
+            $fileName
+        );    
+        if($matkul->deadline_date <= Carbon::now()){
+            //TELAT
+            $uploaded = 2;
         }else{
-            
+            $uploaded = 1;
         }
+
+        $data = [
+            'patch_upload'=>'/'.$patch.'/'.$fileName,
+            'tgl_upload' => Carbon::now(),
+            'uploaded' => $uploaded
+        ];
+        $savingTugas =  DB::table('sys_tr_tugas')->where([['deleted',0],['id',$request->id]])->update($data);
+        if($savingTugas == true){
+            return response()->json(["success" => true,"message" => "Data Berhasil Diupload"]);
+        }else{
+            return response()->json(["success" => false,"message" => "Data Gagal Diupload"]);
+        };
         
     }
 
@@ -147,5 +139,29 @@ class TugasController extends Controller
         }else{
             return response()->json(["success" => false,"message" => "Data Gagal Dinilai"]);
         };
+    }
+
+    public function tugasPost(Request $request) {
+        if($matkul->deadline_date <= Carbon::now()){
+            //TELAT
+            $uploaded = 2;
+        }else{
+            $uploaded = 1;
+        }
+        $data = $request->all();
+        $updated_at = ['updated_at' => Carbon::now(),'tgl_upload'=>Carbon::now(),'uploaded'=>$uploaded];
+        $data = array_merge($data, $updated_at);
+        $result = DB::table('sys_tr_tugas')->where([['deleted',0],['id',$request->id]])->update($data);
+        if($result == true){
+            return response()->json(["success" => true,"message" => "Data Berhasil Dinilai"]);
+        }else{
+            return response()->json(["success" => false,"message" => "Data Gagal Dinilai"]);
+        };
+    }
+
+    
+    public function jawabEdit(Request $request) {
+        $result =  DB::table('sys_tr_tugas')->where([['deleted',0],['id',$request->id]])->first();
+        return response()->json($result);
     }
 }
