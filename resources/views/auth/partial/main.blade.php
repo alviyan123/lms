@@ -1,6 +1,6 @@
 <div class="login-container">
     <img src="{{asset('assets/login/img/avatar.svg')}}" alt="" class="img-avatar" />
-    <h1 class="title">PKU MUI KAB. BOGOR</h1>
+    <h1 class="title">PKU MUI KABUPATEN BOGOR</h1>
 
     <form class="validate-form" action="{{ route('doAuth') }}" method="POST" redirect="{{ route('dashboard') }}">
         {{ csrf_field() }}
