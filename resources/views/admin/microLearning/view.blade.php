@@ -30,35 +30,74 @@
           </div>
         </div>
       </div>
+      <div class="row mb-4">
+        <div class="col-lg-12 col-md-6 mb-md-0 mb-4">
+          <div class="card">
+            <div class="card-header pb-0">
+              <div class="row">
+                <div class="col-lg-6 col-7">
+                  <h6>INPUT MICROLEARNING</h6>
+                </div>
+              </div>
+            </div>
+            <div class="card-body px-0 pb-2">
+              <div class="table-responsive">
+                <div class="container">
+                  <form id="formMt">
+                    <div class="form-row">
+                      <div class="col-md-4 mb-3">
+                        <div class="dx-field">
+                          <div class="dx-field-label">ID</div>
+                          <div class="dx-field-value">
+                            <div id="id_micro_learning"></div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4 mb-3">
+                        <div class="dx-field">
+                          <div class="dx-field-label">Name</div>
+                          <div class="dx-field-value">
+                            <div id="name_micro_learning"></div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4 mb-3">
+                        <div class="dx-field">
+                          <div class="dx-field-label">Dari</div>
+                          <div class="dx-field-value">
+                            <div id="teach_date_from"></div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4 mb-3">
+                        <div class="dx-field">
+                          <div class="dx-field-label">Sampai</div>
+                          <div class="dx-field-value">
+                            <div id="teach_date_to"></div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4 mb-3">
+                        <div class="dx-field">
+                          <div class="dx-field-label">Dead Line</div>
+                          <div class="dx-field-value">
+                            <div id="deadline_date"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <textarea id="inputSoal" name="soal"></textarea>
+                    <button type="submit" class="btn btn-success">SIMPAN</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
         @include('/admin/partial/footer')
     </div>
   </main>
-
-    <div id="modalMt1" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-body">
-                    <div id="formMt1"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="modalMt2" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div id="formMt2"></div>
-            </div>
-        </div>
-    </div>
-
-    <div id="modalMt3" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div id="formMt3"></div>
-            </div>
-        </div>
-    </div>
 
     @include('/admin/partial/mainly')
   <!--   Core JS Files   -->
@@ -91,6 +130,9 @@
             }
             if(value.itemData.text=='Delete'){
               Delete(value.itemData.id);
+            }
+            if(value.itemData.text=='Generate') {
+              Generate(value.itemData.id);
             }
           },
         }).dxActionSheet('instance');
@@ -167,53 +209,14 @@
                         alignment: "left",
                     },
               ],
-              onToolbarPreparing: function(e){
-                e.toolbarOptions.items.unshift(
-                {
-                  location: "before",
-                  widget: "dxButton",
-                  locateInMenu:"auto",
-                  options: {
-                    icon: "fa fa-plus",
-                    type: "success",
-                    text: "MT 1",
-                    elementAttr: {"id": "btnMt1"}, 
-                    onClick: function(e) {
-                        $('#modalMt1').modal('show');
-                        FormMt1(null);
-                    }
-                  }
-                },
-                {
-                  location: "before",
-                  widget: "dxButton",
-                  locateInMenu:"auto",
-                  options: {
-                    icon: "fa fa-plus",
-                    type: "success",
-                    text: "MT 2",
-                    elementAttr: {"id": "btnMt2"}, 
-                  }
-                },
-                {
-                  location: "before",
-                  widget: "dxButton",
-                  locateInMenu:"auto",
-                  options: {
-                    icon: "fa fa-plus",
-                    type: "success",
-                    text: "MT 3",
-                    elementAttr: {"id": "btnMt3"}, 
-                  }
-                },)
-              },
               onCellClick: function(e) {
-                if(e.columnIndex===6){
+                if(e.columnIndex===1){
                 actionSheet.option('target', e.cellElement);
                 actionSheet.option('visible', true);
                 const actionSheetItems = [
                     { text: 'Edit',icon: 'edit',id:e.data.id},
                     { text: 'Delete',icon: 'trash',type: 'danger',id:e.data.id},
+                    { text: 'Generate',icon: 'refresh',id:e.data.id},
                 ];
                 actionSheet.option('items',actionSheetItems);
 
@@ -222,137 +225,124 @@
           }).dxDataGrid("instance");
       }
 
-      function FormMt1(data) {
-          $("#formMt1").dxForm({
-            readOnly: false,
-            formData: data,
-            showColonAfterLabel: false,
-            labelLocation: "top",
-            showValidationSummary: true,
-            colCount: 2,
-            items: [
-              {
-                dataField: "id",
-                editorType: "dxTextBox",
-                editorOptions: {
-                  readOnly: true,
-                  width: '100%',
-                },
-                label: {
-                  text: "ID"
-                },
-              },
-              {
-                dataField: "name",
-                editorType: "dxTextBox",
-                editorOptions: {
-                  readOnly: false,
-                  width: '100%',
-                },
-                label: {
-                  text: "Nama Mata Kuliah"
-                },
-              },
-              {
-                dataField: "teach_date_from",
-                editorType: "dxDateBox",
-                editorOptions: {
-                    type: "datetime",
-                    displayFormat: 'dd-MM-yyyy HH:mm',
-                    readOnly: false,
-                    width: '100%',
-                },
-                label: {
-                  text: "Dari"
-                },
-              },
-              {
-                dataField: "teach_date_to",
-                editorType: "dxDateBox",
-                editorOptions: {
-                    type: "datetime",
-                    displayFormat: 'dd-MM-yyyy HH:mm',
-                    readOnly: false,
-                    width: '100%',
-                },
-                label: {
-                  text: "Sampai"
-                },
-              },
-              {
-                dataField: "deadline_date",
-                editorType: "dxDateBox",
-                editorOptions: {
-                    type: "datetime",
-                    displayFormat: 'dd-MM-yyyy HH:mm',
-                    readOnly: false,
-                    width: '100%',
-                },
-                label: {
-                  text: "Deadline Tugas"
-                },
-              },
-              {
-                dataField: "dosen_id",
-                editorType: "dxSelectBox",
-                editorOptions: {
-                    readOnly: false,
-                    width: '100%',
-                    searchEnabled: true,
-                    dataSource: Pku.ParameterLookup("Dosen", "Dosen"),
-                    displayExpr: "Name",
-                    valueExpr: "ID",
-                },
-                label: {
-                    text: "Dosen"
-                },
-              },
-              @if(Auth::user()->role == 1)
-              {
-                dataField: "is_display",
-                editorType: "dxNumberBox",
-                editorOptions: {
-                  visible: true,
-                  readOnly: false,
-                  width: '100%',
-                },
-                label: {
-                  text: "Display"
-                },
-              },
-              @endif
-              {
-                dataField: "weekend_to",
-                editorType: "dxNumberBox",
-                editorOptions: {
-                  readOnly: false,
-                  width: '100%',
-                },
-                label: {
-                  text: "Minggu Ke"
-                },
-              },
-              {
-                  editorType: "dxButton",
-                  label: {
-                    text: "SIMPAN",
-                    visible: false
-                  },
-                  editorOptions: {
-                    text: "SIMPAN",
-                    type: "success",
-                    icon: 'save',
-                    height: '100%',
-                    useSubmitBehavior: true,
-                    elementAttr: {
-                        style: "float:right;"
-                    }
-                  },
-              },
+      tinymce.init({
+        selector: '#inputSoal',
+        plugins: [
+          'a11ychecker','advlist','advcode','advtable','autolink','checklist','export',
+          'lists','link','image','charmap','preview','anchor','searchreplace','visualblocks',
+          'powerpaste','fullscreen','formatpainter','insertdatetime','media','table','help','wordcount'
+        ],
+        toolbar: 'undo redo | formatpainter casechange blocks | bold italic backcolor | ' +
+          'alignleft aligncenter alignright alignjustify | ' +
+          'bullist numlist checklist outdent indent | removeformat | a11ycheck code table help'
+      });
 
-            ]
-          }).dxForm("instance");
-        };
+      $('#teach_date_from').dxDateBox({
+        type: 'datetime',
+        displayFormat: 'yyyy-MM-ddTHH:mm:ss',
+      }).dxDateBox("instance");
+      $('#teach_date_to').dxDateBox({
+        type: 'datetime',
+        displayFormat: 'yyyy-MM-ddTHH:mm:ss',
+      }).dxDateBox("instance");
+      $('#deadline_date').dxDateBox({
+        type: 'datetime',
+        displayFormat: 'yyyy-MM-ddTHH:mm:ss',
+      }).dxDateBox("instance");
+      $('#id_micro_learning').dxTextBox({
+        placeholder: 'ID Micro Learning...',
+        readOnly: true,
+      }).dxTextBox("instance");
+      $('#name_micro_learning').dxTextBox({
+        placeholder: 'Name ML',
+        readOnly: false,
+      }).dxTextBox("instance");
+      
+
+
+      $("#formMt").submit(function (e) { 
+        e.preventDefault();
+        var form = $('#formMt')[0];
+        var formData = new FormData(form);
+        formData.append('teach_date_from',$('#teach_date_from').dxDateBox("instance").option('text'));
+        formData.append('teach_date_to',$('#teach_date_to').dxDateBox("instance").option('text'));
+        formData.append('deadline_date',$('#deadline_date').dxDateBox("instance").option('text'));
+        formData.append('id_micro_learning',$('#id_micro_learning').dxTextBox("instance").option('value'));
+        formData.append('name',$('#name_micro_learning').dxTextBox("instance").option('value'));
+
+
+        loadPanel.show();
+
+        $.ajax({
+          type: 'POST',
+          headers: {  
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          url: '{{ route("microLearningSave") }}',
+          enctype: 'multipart/form-data',
+          cache: false,
+          contentType: false,
+          processData: false,
+          data:formData,
+          success: function (res)
+          {
+              loadPanel.hide();
+              if (res.success == true) {
+                Pku.WindowNotif( "OK" ,  res.message,  'success' );
+                // loadData();
+                return false;
+              }else{
+                Pku.WindowNotif ( "Oops" ,  res.message,  'error' );
+                return false; 
+              }
+          },
+          error: function(jqXHR, textStatus, errorThrown) {
+              loadPanel.hide();
+              Pku.WindowNotif ( "Oops" ,  jqXHR.responseText,  'error' );
+              return false;
+          }
+        }).done(function (data) {
+              loadPanel.hide();
+        });
+      });
+
+      function Generate(id) {
+        swal({
+            title: "Generate",
+            text: "Anda yakin Generate Data Ini ?",
+            icon: "info",
+            buttons: [
+                "TIDAK",
+                "YA"
+            ],
+            dangerMode: true,
+        }).then(function(isConfirm) {
+            if (isConfirm) {
+                $.ajax({
+                    type: 'POST',
+                    headers: {  
+                      'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: '{{route('microLearningGenerate')}}',
+                    data: {"id":id},
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.success == true) {
+                          Pku.WindowNotif( "OK" ,  data.message,  'success' );
+                          loadData();
+                        }else {
+                          Pku.WindowNotif ( "Oops" ,  data.message,  'error' );
+                        }
+                        return false;
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                      Pku.WindowNotif ( "Oops" ,  jqXHR.responseText,  'error' );
+                        return false;
+                    }
+                });                                    
+            }
+        });
+      }
     });
   </script>
 </body>

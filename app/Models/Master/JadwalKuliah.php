@@ -17,7 +17,7 @@ class JadwalKuliah extends Model
      * @var array
      */
     protected $fillable = [
-        'public_id', 'name','dosen_id', 'teach_date_from', 'teach_date_to', 'deadline_date','weekend_to'
+        'public_id', 'name','dosen_id', 'teach_date_from', 'teach_date_to', 'deadline_date','weekend_to','is_refleksi'
     ];
 
 	public $timestamps = true;

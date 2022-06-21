@@ -142,6 +142,10 @@ class TugasController extends Controller
     }
 
     public function tugasPost(Request $request) {
+        $tugas =  DB::table('sys_tr_tugas')->where([['deleted',0],['id',$request->id]])->first(); 
+        $user =  Admin::where('id',$tugas->user_id)->first(); 
+
+        $matkul =  JadwalKuliah::where([['deleted',0],['id',$tugas->jadwal_id]])->first(); 
         if($matkul->deadline_date <= Carbon::now()){
             //TELAT
             $uploaded = 2;

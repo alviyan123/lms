@@ -25,6 +25,14 @@
             <span class="nav-link-text ms-1">Tugas</span>
           </a>
         </li>
+        <li class="nav-item">
+          <a id="btnTugasMl" class="nav-link text-white " href="{{ route('tugasMl') }}">
+            <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+              <i class="material-icons opacity-10">computer</i>
+            </div>
+            <span class="nav-link-text ms-1">Micro Learning</span>
+          </a>
+        </li>
         @if(Auth::user()->role == '1' || Auth::user()->role == '2')
         <li class="nav-item">
           <a id="btnMasterJadwal" class="nav-link text-white " href="{{ route('jadwal') }}">
@@ -34,10 +42,12 @@
             <span class="nav-link-text ms-1">Master Jadwal Kuliah</span>
           </a>
         </li>
+        @endif
+        @if(Auth::user()->role == '1')
         <li class="nav-item">
           <a id="btnMasterML" class="nav-link text-white " href="{{ route('microLearning') }}">
             <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
-              <i class="material-icons opacity-10">access_time</i>
+              <i class="material-icons opacity-10">chat</i>
             </div>
             <span class="nav-link-text ms-1">Master Micro Learning</span>
           </a>

@@ -18,9 +18,9 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
   <!-- CSS Files -->
   <link id="pagestyle" href="{{asset('assets/admin/css/material-dashboard.css?v=3.0.2')}}" rel="stylesheet" />
+  <script src="https://cdn.tiny.cloud/1/a3brer2z5t3ubf7s71ns8glxwtjkbt9ppfnibga430v4j8l7/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
   <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
- 
- <!-- DevExtreme theme -->
+  <!-- DevExtreme theme -->
  <link rel="stylesheet" href="https://cdn3.devexpress.com/jslib/21.2.7/css/dx.light.css">
   <script>
     var PARAMETER_URL = "{{ route('parameterLookup') }}"

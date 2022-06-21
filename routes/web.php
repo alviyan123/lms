@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\JadwalController;
 use App\Http\Controllers\Admin\TugasController;
 use App\Http\Controllers\Admin\ParameterLookupController;
 use App\Http\Controllers\Admin\MicroLearningController;
+use App\Http\Controllers\Admin\TugasMlController;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,6 +54,16 @@ Route::group(['middleware' => 'auth:admin'], function() {
     //MICRO LEARNING
     Route::get('/microLearning', [MicroLearningController::class, 'index'])->name('microLearning');	
     Route::get('/microLearning/data', [MicroLearningController::class, 'data'])->name('microLearningData');
+    Route::post('/microLearning/save', [MicroLearningController::class, 'save'])->name('microLearningSave');
+    Route::post('/microLearning/generate', [MicroLearningController::class, 'generate'])->name('microLearningGenerate');
+    
+    //MICRO LEARNING
+    Route::get('/tugasMl', [TugasMlController::class, 'index'])->name('tugasMl');	
+    Route::get('/tugasMl/data', [TugasMlController::class, 'data'])->name('tugasMlData');
+    Route::get('/tugasMl/detail/{action}/{id}', [TugasMlController::class, 'detail'])->name('tugasMlDetail');
+    Route::post('/tugasMl/jawaban', [TugasMlController::class, 'jawaban'])->name('tugasMlJawaban');
+    Route::post('/tugasMl/nilai', [TugasMlController::class, 'nilai'])->name('tugasMlNilai');
+
 
     //PARAMETER
     Route::get('/parameter', [ParameterLookupController::class, 'lookup'])->name('parameterLookup');	
