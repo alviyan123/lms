@@ -25,7 +25,7 @@ class TugasMlController extends Controller
     public function data(Request $request) {
         if(Auth::user()->role ==4){
             $result = DB::table('sys_tr_tugas_ml AS a')
-            ->select(DB::raw('a.id,b.name AS name_jadwal,c.name,b.teach_date_from,b.deadline_date,a.value,a.is_value,d.name AS name_mentor'))
+            ->select(DB::raw('a.id,b.name AS name_jadwal,c.name,b.teach_date_from,b.deadline_date,a.value,a.is_value,d.name AS name_mentor,a.uploaded'))
             ->join('sys_ms_jadwal_ml AS b','a.jadwal_id','=', 'b.id')
             ->join('sys_ms_admins AS c', 'a.user_id', '=', 'c.id')
             ->join('sys_ms_admins AS d', 'c.mentor_id', '=', 'd.id')
@@ -33,7 +33,7 @@ class TugasMlController extends Controller
             ->get();
         }else if(Auth::user()->role == 3){
             $result = DB::table('sys_tr_tugas_ml AS a')
-            ->select(DB::raw('a.id,b.name AS name_jadwal,c.name,b.teach_date_from,b.deadline_date,a.value,a.is_value,d.name AS name_mentor'))
+            ->select(DB::raw('a.id,b.name AS name_jadwal,c.name,b.teach_date_from,b.deadline_date,a.value,a.is_value,d.name AS name_mentor,a.uploaded'))
             ->join('sys_ms_jadwal_ml AS b','a.jadwal_id','=', 'b.id')
             ->join('sys_ms_admins AS c', 'a.user_id', '=', 'c.id')
             ->join('sys_ms_admins AS d', 'c.mentor_id', '=', 'd.id')
@@ -41,7 +41,7 @@ class TugasMlController extends Controller
             ->get();
         }else {
             $result = DB::table('sys_tr_tugas_ml AS a')
-            ->select(DB::raw('a.id,b.name AS name_jadwal,c.name,b.teach_date_from,b.deadline_date,a.value,a.is_value,d.name AS name_mentor'))
+            ->select(DB::raw('a.id,b.name AS name_jadwal,c.name,b.teach_date_from,b.deadline_date,a.value,a.is_value,d.name AS name_mentor,a.uploaded'))
             ->join('sys_ms_jadwal_ml AS b','a.jadwal_id','=', 'b.id')
             ->join('sys_ms_admins AS c', 'a.user_id', '=', 'c.id')
             ->join('sys_ms_admins AS d', 'c.mentor_id', '=', 'd.id')
